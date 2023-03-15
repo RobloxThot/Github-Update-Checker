@@ -5,6 +5,7 @@ url = "https://github.com/a/b"
 import requests
 import discord
 import time
+import re
 from discord.ext import tasks, commands
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix="!?",intents=intents)
@@ -19,11 +20,9 @@ def getCommitHash():
 			return commit
 
 def getCommitMsg():
-	response = requests.get(url)
-	for line in response.text.split("\n"):
-		if "commit-tease-commit-message" in line:
-			commitMsg = line.split(">")[1].split("<")[0]
-			return commitMsg
+	rq = requests.get(f'{url}/commit/{commit}.patch')
+	match = re.search(r'^Subject: \[PATCH\] (.*)$', rq.text, re.MULTILINE)
+	commitMsg = match.group(1) if match else '⚠️ Failed to get update msg'
 
 @client.event
 async def on_ready():
@@ -34,11 +33,6 @@ async def on_ready():
 @client.command(pass_context=True)
 async def ping(ctx):
 	await ctx.send("> `Pong! " + str(round(client.latency * 1000)) + "ms`")
-
-# @client.command(pass_context=True)
-# @commands.has_role("Friends")
-# async def cum(ctx):
-# 	await ctx.send("Onii-Chan Don't Cum Inside Kyaa~😊")
 
 @tasks.loop(seconds=60)
 async def my_loop():
