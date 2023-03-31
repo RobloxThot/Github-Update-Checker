@@ -61,4 +61,4 @@ async def before_some_task():
 
 
 client.run(botToken)
-#pyinstaller --clean --onefile --key "peepeepoopoo" main.py
+#pyinstaller --clean --onefile main.py
